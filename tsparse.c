@@ -13,14 +13,28 @@ const char* process_line(message_t* msg, const char* line) {
         return line;
     }
 
+    const char* data_ptr = line;
+
     if (msg->state == MESSAGE) {
-        const char* s = strstr(line, "<source>");
-        //if (s != NULL)
+        const char* ss = strstr(line, "<source>");
+
+        if (ss != NULL) {
+            data_ptr = ss + strlen("<source>");
+        }
 
         const char* p = strstr(line, "</message>");
         // prepare translation here
         if (p != NULL) msg->state = BEGIN;
         return line;
+    }
+
+    if (msg->state == SOURCE) {
+        const char* es = strstr(line, "</source>");
+        if (es != NULL) {
+            // strcat remains
+        }
+
+        msg->state = MESSAGE;
     }
 
     return line;
