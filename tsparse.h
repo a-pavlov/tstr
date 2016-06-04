@@ -10,7 +10,10 @@ typedef enum {
 typedef struct {
     state_t state;
     char data[8096];
+    char force;
+    char translation_block;	// c - completed, u - unfinished
+    void (*data_callback)(const char* b, const char* e);
 } message_t;
 
 void init_message(message_t* msg);
-const char* process_line(message_t* msg, const char* line);
+void process_line(message_t* msg, const char* line);
