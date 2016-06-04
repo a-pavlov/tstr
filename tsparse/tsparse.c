@@ -10,19 +10,24 @@
 #define ESRC "</source>"
 #define ETRN "</translation>"
 
-const char* TT = "<translation>Test translation</translation>\n";
+const char* TT = "Test translation";
 
 
-void print_callback(const char* b, const char* e) {
+void print_callback(const char* b, int len) {
 	char buff[1024];
 	memset(buff, 0, 1024);
-	memcpy(buff, b, e - b);
+	memcpy(buff, b, len);
 	printf("%s", buff);
+}
+
+const char* translator(const char* src) {
+	return TT;
 }
 
 void init_message(message_t* msg) {
     msg->state = BEGIN;
-    msg->data_callback = &print_callback;
+    msg->pass = &print_callback;
+    msg->translate = &translator;
     msg->force='y';
     msg->translation_block = 0;
 }
@@ -59,7 +64,7 @@ void process_line(message_t* msg, const char* line) {
 				end = p + strlen(p);
 			}
 
-			msg->data_callback(p, end);
+			msg->pass(p, end - p);
 			p = end;
 		}
 		else if (msg->state == MESSAGE) {
@@ -69,39 +74,45 @@ void process_line(message_t* msg, const char* line) {
 
 			if (psrc != NULL && (ptrn == NULL || ptrn > psrc)) {
 				msg->state = SOURCE;
-				msg->data_callback(p, psrc);
+				msg->pass(p, psrc - p);
 				p = psrc;
 			}
 			else if (ptrn != NULL && (psrc == NULL || psrc > ptrn)) {
 				msg->state = TRANSLATION;
-				msg->data_callback(p, ptrn);
+				msg->pass(p, ptrn - p);
 				p = ptrn;
 			}
 			else if ((pmsg = strstr(p, EMSG)) != NULL) {
 				msg->state = BEGIN;
-				msg->data_callback(p, pmsg);
+				msg->pass(p, pmsg - p);
 				// translate source if translation block is not completed
-				if (msg->translation_block != 'c') msg->data_callback(TT, TT + strlen(TT));
-				msg->data_callback(pmsg, pmsg + strlen(EMSG));
+				if (msg->translation_block != 'c') {
+					msg->pass("<translation>", strlen("<translation>"));
+					const char* tran = msg->translate(msg->source);
+					msg->pass(tran, strlen(tran));
+					msg->pass("</translation>\n", strlen("</translation>\n"));
+				}
+				msg->pass(pmsg, strlen(EMSG));
 				p = pmsg + strlen(EMSG);
+				init_message(msg);
 			} else {
-				msg->data_callback(p, p + strlen(p));
+				msg->pass(p, strlen(p));
 				p += strlen(p);
 			}
 		}
 		else if (msg->state == SOURCE) {
 			const char* end = strstr(p, ESRC);
 			if (end != NULL) {
-				strncat(msg->data, p, end - p);
-				msg->data_callback(p, end);
-				msg->data_callback(end, end + strlen(ESRC));
+				strncat(msg->source, p, end - p);
+				msg->pass(p, end - p);
+				msg->pass(end,  strlen(ESRC));
 				msg->state = MESSAGE;
 				end += strlen(ESRC);
 			}
 			else {
 				end = p + strlen(p);
-				strncat(msg->data, p, strlen(p));
-				msg->data_callback(p, p + strlen(p));
+				strncat(msg->source, p, strlen(p));
+				msg->pass(p, strlen(p));
 			}
 
 			p = end;
@@ -117,7 +128,7 @@ void process_line(message_t* msg, const char* line) {
 			}
 
 			// skip trailing new line
-			if (*p == '\n') p++;
+			if (*end == '\n') end++;
 			p = end;
 		}
 	}
