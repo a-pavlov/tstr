@@ -85,13 +85,15 @@ void process_line(message_t* msg, const char* line) {
 			else if ((pmsg = strstr(p, EMSG)) != NULL) {
 				msg->state = BEGIN;
 				msg->pass(p, pmsg - p);
+				// TODO - add explicit translation block if we didn't add it still?
 				// translate source if translation block is not completed
-				if (msg->translation_block != 'c') {
+				/*if (msg->translation_block != 'c') {
 					msg->pass("<translation>", strlen("<translation>"));
 					const char* tran = msg->translate(msg->source);
 					msg->pass(tran, strlen(tran));
 					msg->pass("</translation>\n", strlen("</translation>\n"));
 				}
+				*/
 				msg->pass(pmsg, strlen(EMSG));
 				p = pmsg + strlen(EMSG);
 				init_message(msg);
@@ -103,6 +105,7 @@ void process_line(message_t* msg, const char* line) {
 		else if (msg->state == SOURCE) {
 			const char* end = strstr(p, ESRC);
 			if (end != NULL) {
+				// TODO - check we have enough space in source buffer!
 				strncat(msg->source, p, end - p);
 				msg->pass(p, end - p);
 				msg->pass(end,  strlen(ESRC));
@@ -116,19 +119,22 @@ void process_line(message_t* msg, const char* line) {
 			}
 
 			p = end;
-			continue;
 		}
 		else if (msg->state == TRANSLATION) {
 			const char* end = end_of_token(p, ETRN);
 
 			if (end != NULL) {
+				// translate message directly instead of previous translation block
+				// TODO - check we have source text
 				msg->state = MESSAGE;
+				msg->pass("<translation>", strlen("<translation>"));
+				const char* tran = msg->translate(msg->source);
+				msg->pass(tran, strlen(tran));
+				msg->pass("</translation>", strlen("</translation>\n"));
 			} else {
 				end = p + strlen(p);
 			}
 
-			// skip trailing new line
-			if (*end == '\n') end++;
 			p = end;
 		}
 	}
