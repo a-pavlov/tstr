@@ -30,6 +30,7 @@ void init_message(message_t* msg) {
     msg->translate = &translator;
     msg->force='y';
     msg->translation_block = 0;
+    msg->source[0] = 0;
 }
 
 const char* end_of_token(const char* src, const char* keyword) {
@@ -43,7 +44,6 @@ const char* translation_block(message_t* msg, const char* src) {
 	const char* u_translation = strstr(src, BTRN);
 
 	if (translation != NULL && msg->force != 'y') msg->translation_block = 'c';
-	//if (u_translation) msg->translation_block = 'u';
 
 	if (translation && msg->force == 'y') return translation;
 	return u_translation;
