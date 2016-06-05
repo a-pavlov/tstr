@@ -4,13 +4,17 @@ set(tstr_version 0.0.1)
 
 option (BUILD_TESTS "Build unit tests." TRUE)
 
+find_package(CURL REQUIRED)
+
 file(GLOB parse_sources tsparse/*.c)
 file(GLOB parse_headers tsparse/*.h)
 
 include_directories(jsmn)
 include_directories(tsparse)
+include_directories(${CURL_INCLUDE_DIRS})
 
 add_executable(tstr ${parse_headers} ${parse_sources} tstran.c jsmn/jsmn.c jsmn/jsmn.h)
+target_link_libraries(tstr ${CURL_LIBRARIES})
 
 if (BUILD_TESTS)
 	include_directories(jsmn/test)
