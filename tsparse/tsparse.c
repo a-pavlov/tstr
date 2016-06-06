@@ -12,6 +12,38 @@
 
 const char* TT = "Test translation";
 
+// http://www.ietf.org/rfc/rfc2396.txt
+// section 2.3
+static const char unreserved_chars[] =
+  // when determining if a url needs encoding
+  // % should be ok
+  "%+"
+  // reserved
+  ";?:@=&,$/"
+  // unreserved (special characters) ' excluded,
+  // since some buggy trackers fail with those
+  "-_!.~*()"
+  // unreserved (alphanumerics)
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+  "0123456789";
+
+static const char hex_chars[] = "0123456789abcdef";
+
+
+char* encode_char(char* dst, char c) {
+
+	if (strchr(unreserved_chars + 11, c)) {
+	  *dst++ = c;
+	}
+	else
+	{
+		*dst++ = '%';
+		*dst++ = hex_chars[((unsigned char)c) >> 4];
+		*dst++ = hex_chars[((unsigned char)c) & 15];
+	}
+
+	return dst;
+}
 
 void print_callback(const char* b, int len) {
 	char buff[1024];
@@ -21,6 +53,7 @@ void print_callback(const char* b, int len) {
 }
 
 const char* translator(const char* src) {
+	printf("SRC: \"%s\"", src);
 	return TT;
 }
 
@@ -47,6 +80,17 @@ const char* translation_block(message_t* msg, const char* src) {
 
 	if (translation && msg->force == 'y') return translation;
 	return u_translation;
+}
+
+//TODO - check we have enough space in source buffer!
+void append_source(message_t* msg, const char* src, int len) {
+	char* tail = msg->source + strlen(msg->source);
+	while(len != 0) {
+		tail = encode_char(tail, *src++);
+		len--;
+	}
+
+	*tail = 0; // add zero terminator
 }
 
 void process_line(message_t* msg, const char* line) {
@@ -96,7 +140,8 @@ void process_line(message_t* msg, const char* line) {
 				*/
 				msg->pass(pmsg, strlen(EMSG));
 				p = pmsg + strlen(EMSG);
-				init_message(msg);
+				msg->translation_block = 0;
+				msg->source[0] = 0;
 			} else {
 				msg->pass(p, strlen(p));
 				p += strlen(p);
@@ -106,7 +151,7 @@ void process_line(message_t* msg, const char* line) {
 			const char* end = strstr(p, ESRC);
 			if (end != NULL) {
 				// TODO - check we have enough space in source buffer!
-				strncat(msg->source, p, end - p);
+				append_source(msg, p, end - p);
 				msg->pass(p, end - p);
 				msg->pass(end,  strlen(ESRC));
 				msg->state = MESSAGE;
@@ -114,7 +159,7 @@ void process_line(message_t* msg, const char* line) {
 			}
 			else {
 				end = p + strlen(p);
-				strncat(msg->source, p, strlen(p));
+				append_source(msg, p, strlen(p));
 				msg->pass(p, strlen(p));
 			}
 

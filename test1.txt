@@ -1,0 +1,14 @@
+<message>
+<source>Hello</source>
+<translation type="unfinished"></translation>
+</message>
+<message>
+<source>Hello world!</source>
+<translation></translation>
+</message>
+<message>
+<source>Hello World!
+My Name is Alex. I'm your nurse
+</source>
+<translation></translation>
+</message>
