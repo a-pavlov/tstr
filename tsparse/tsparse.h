@@ -12,7 +12,7 @@ typedef struct {
     char source[1024];
     char force;
     char translation_block;	// c - completed, u - unfinished
-    void (*pass)(const char* b, int len);
+    void (*pass)(const char* b, size_t len);
     const char* (*translate)(const char* src);
 
 } message_t;

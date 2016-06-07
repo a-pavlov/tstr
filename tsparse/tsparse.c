@@ -45,7 +45,7 @@ char* encode_char(char* dst, char c) {
 	return dst;
 }
 
-void print_callback(const char* b, int len) {
+void print_callback(const char* b, size_t len) {
 	char buff[1024];
 	memset(buff, 0, 1024);
 	memcpy(buff, b, len);
@@ -151,7 +151,7 @@ void process_line(message_t* msg, const char* line) {
 			const char* end = strstr(p, ESRC);
 			if (end != NULL) {
 				// TODO - check we have enough space in source buffer!
-				append_source(msg, p, end - p);
+				append_source(msg, p, (int)(end - p));
 				msg->pass(p, end - p);
 				msg->pass(end,  strlen(ESRC));
 				msg->state = MESSAGE;
@@ -159,7 +159,7 @@ void process_line(message_t* msg, const char* line) {
 			}
 			else {
 				end = p + strlen(p);
-				append_source(msg, p, strlen(p));
+				append_source(msg, p, (int)strlen(p));
 				msg->pass(p, strlen(p));
 			}
 

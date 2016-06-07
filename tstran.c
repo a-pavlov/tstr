@@ -66,36 +66,16 @@ int main(void) {
 	if (curl) {
 
 		const char* ot = online_translation("");
-		/*if (ot) {
-			printf("Online translation res: %s", ot);
-			jsmn_parser parser;
-			jsmntok_t tokens[10];
-			jsmn_init(&parser);
-			int tks = jsmn_parse(&parser, response, strlen(response), tokens, 10);
-			int i = 0;
-			while(i < tks) {
-				char buff[100];
-				buff[0] = 0;
-				strncat(buff, &response[0] + tokens[i].start, tokens[i].end - tokens[i].start);
-				printf("%i tk: %i val: %s\n", i, tokens[i].type, buff);
-				++i;
-			}
-		}
-		else {
-			printf("Curl error: %s", errors);
-			return 1;
-		}
-		*/
-
 		message_t msg;
 		init_message(&msg);
 		msg.translate = &online_translation;
 
-		ssize_t read;
-		char* line = NULL;
+		size_t read;
+		char line[1024];
 		size_t n = 0;
-		while((read = getline(&line, &n, stdin)) != -1) {
-			process_line(&msg, line);
+		while((gets(line, 1024))) {
+            strcat(line, "\n");
+			process_line(&msg, line);            
 		}
 
 		curl_easy_cleanup(curl);

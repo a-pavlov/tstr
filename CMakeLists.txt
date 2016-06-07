@@ -6,6 +6,10 @@ option (BUILD_TESTS "Build unit tests." TRUE)
 
 find_package(CURL REQUIRED)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -DCURL_STATICLIB)
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+
 file(GLOB parse_sources tsparse/*.c)
 file(GLOB parse_headers tsparse/*.h)
 
