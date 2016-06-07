@@ -42,6 +42,7 @@ const char* online_translation(const char* source) {
     curl_slist_free_all(header);
     if (res != 0) return NULL;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+    // TODO - add better result processing
     jsmn_parser parser;
 	jsmntok_t tokens[10];
 	jsmn_init(&parser);
@@ -64,7 +65,6 @@ int main(void) {
 	curl = curl_easy_init();
 
 	if (curl) {
-
 		const char* ot = online_translation("");
 		message_t msg;
 		init_message(&msg);
@@ -74,7 +74,6 @@ int main(void) {
 		char line[1024];
 		size_t n = 0;
 		while((fgets(line, 1024, stdin))) {
-            strcat(line, "\n");
 			process_line(&msg, line);            
 		}
 
