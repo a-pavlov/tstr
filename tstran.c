@@ -73,7 +73,7 @@ int main(void) {
 		size_t read;
 		char line[1024];
 		size_t n = 0;
-		while((gets(line, 1024))) {
+		while((fgets(line, 1024, stdin))) {
             strcat(line, "\n");
 			process_line(&msg, line);            
 		}

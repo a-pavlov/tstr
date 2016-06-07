@@ -1,3 +1,4 @@
+#include <stdlib.h>
 
 typedef enum {
     BEGIN = 0,
