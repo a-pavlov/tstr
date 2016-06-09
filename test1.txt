@@ -4,7 +4,7 @@
 </message>
 <message>
 <source>Hello world!</source>
-<translation></translation>
+<translation type="unfinished"></translation>
 </message>
 <message>
 <source>Hello World!

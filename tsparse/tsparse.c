@@ -61,7 +61,6 @@ void init_message(message_t* msg) {
     msg->state = BEGIN;
     msg->pass = &print_callback;
     msg->translate = &translator;
-    msg->force='y';
     msg->translation_block = 0;
     msg->source[0] = 0;
 }

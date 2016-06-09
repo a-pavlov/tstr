@@ -12,12 +12,16 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 file(GLOB parse_sources tsparse/*.c)
 file(GLOB parse_headers tsparse/*.h)
+file(GLOB arg_parse_sources argparse/argparse.c)
+file(GLOB arg_parse_headers argparse/argparse.h)
+
 
 include_directories(jsmn)
 include_directories(tsparse)
+include_directories(argparse)
 include_directories(${CURL_INCLUDE_DIRS})
 
-add_executable(tstr ${parse_headers} ${parse_sources} tstran.c jsmn/jsmn.c jsmn/jsmn.h)
+add_executable(tstr ${parse_headers} ${parse_sources} ${arg_parse_headers} ${arg_parse_sources} tstran.c jsmn/jsmn.c jsmn/jsmn.h)
 target_link_libraries(tstr ${CURL_LIBRARIES})
 
 if (BUILD_TESTS)
