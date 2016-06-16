@@ -4,7 +4,7 @@ Qt *.ts files automatic translator using [Yandex translation api](https://tech.y
 # Features
 * Pure C project
 * Easy and fast 
-* Minimal dependencies - use only [jasmine](https://github.com/zserge/jsmn) as submodule for json response parsing and curl as external library.
+* Minimal dependencies - use only [jasmine](https://github.com/zserge/jsmn) and [argparse](https://github.com/Cofyc/argparse) as submodules for json response parsing and command line processing. Curl is external library.
 * Translated file is equal the source except translated block.
 * Now hardcoded en-ru translation and api key + force translation - translate all source blocks
 
